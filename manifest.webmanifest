@@ -1,0 +1,11 @@
+{
+    "background_color": "#181818",
+    "description": "Fly a ship!",
+    "display": "fullscreen",
+    "name": "Shiply",
+    "short_name": "Shiply",
+    "start_url": "/shiply/",
+    "orientation": "portrait",
+    "icons": [
+    ]
+}
