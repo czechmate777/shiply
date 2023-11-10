@@ -39,8 +39,37 @@ var render = Render.create({
 Render.run(render);
 
 // create runner
-var runner = Runner.create();
-Runner.run(runner, engine);
+var runner = Runner.create({
+    isFixed: true
+});
+// Runner.run(runner, engine);
+
+// lock the frame rate to 60fps
+const fps = 60;
+const interval = 1000 / fps;
+let then = Date.now();
+let elapsed = 0;
+
+function update() {
+  // calculate elapsed time since last loop
+  const now = Date.now();
+  const delta = now - then;
+  elapsed += delta;
+
+  // update simulation if enough time has passed
+  if (elapsed > interval) {
+    // update simulation
+    elapsed -= interval;
+    Runner.tick(runner, engine, elapsed);
+  }
+
+  // request next frame
+  then = now;
+  requestAnimationFrame(update);
+}
+
+// start the animation loop
+requestAnimationFrame(update);
 
 // add bodies
 var shipBody = Bodies.rectangle(350, 200, 15, 35, { density: 0.01, render: { fillStyle: '#eeeeee' }});
@@ -161,7 +190,7 @@ window.addEventListener("keyup", e => {
 window.addEventListener("touchstart", e => {
     for (let i = 0; i < e.changedTouches.length; i++) {
         let touch = e.changedTouches[i];
-        if (touch.pageX < render.canvas.width/2) {
+        if (touch.clientX < render.canvas.clientWidth/2) {
             keys.left = true;
         }
         else {
@@ -173,7 +202,7 @@ window.addEventListener("touchstart", e => {
 window.addEventListener("touchend", e => {
     for (let i = 0; i < e.changedTouches.length; i++) {
         let touch = e.changedTouches[i];
-        if (touch.pageX < render.canvas.width/2) {
+        if (touch.clientX < render.canvas.clientWidth/2) {
             keys.left = false;
         }
         else {
