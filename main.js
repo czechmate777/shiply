@@ -16,6 +16,7 @@ var Engine = Matter.Engine,
     Composite = Matter.Composite,
     Bodies = Matter.Bodies;
     Vector = Matter.Vector;
+    Vertices = Matter.Vertices;
 
 // create engine
 var engine = Engine.create({ timing: { timeScale: 0.5 } }),
@@ -72,42 +73,36 @@ function update() {
 requestAnimationFrame(update);
 
 // add bodies
+
+// Land
+var chunkWidth = 4000;
+var chunkHeight = 1000;
+var landGran = 20;
+var landHeightVariation = 20;
+
+var currentLandHeight = 0;
+var chunkPoints = [chunkWidth, chunkHeight, 0, chunkHeight];
+for (let i = 0; i < chunkWidth/landGran; i++) {
+    var x = i*landGran;
+    var y = currentLandHeight + Math.random()*2*landHeightVariation-landHeightVariation;
+    currentLandHeight = y;
+    console.log("Getting point x: " + x + "  y: " + y);
+
+    chunkPoints[chunkPoints.length] = x;
+    chunkPoints[chunkPoints.length] = y;
+}
+var land = Bodies.fromVertices(0, 600, Vertices.fromPath(chunkPoints.join(' ')), { isStatic: true, render: { fillStyle: '#333333' }});
+
+Composite.add(world, land);
+
+// Ship
 var shipBody = Bodies.rectangle(350, 200, 15, 35, { density: 0.01, render: { fillStyle: '#eeeeee' }});
 var shipThruster = Bodies.rectangle(350, 220, 15, 5, { density: 0.01, render: { fillStyle: '#ee0202' }});
 var ship = Body.create({
     parts: [shipBody, shipThruster]
 })
 
-
 Composite.add(world, ship);
-
-var bodyA = Bodies.rectangle(100, 300, 50, 50, { isStatic: true, render: { fillStyle: '#060a19' } }),
-    bodyB = Bodies.rectangle(200, 200, 50, 50),
-    bodyC = Bodies.rectangle(300, 200, 50, 50),
-    bodyD = Bodies.rectangle(400, 200, 50, 50),
-    bodyE = Bodies.rectangle(550, 200, 50, 50),
-    bodyF = Bodies.rectangle(700, 200, 50, 50),
-    bodyG = Bodies.circle(400, 100, 25, { render: { fillStyle: '#060a19' } });
-
-// add compound body
-var partA = Bodies.rectangle(600, 200, 120 * 0.8, 50 * 0.8, { render: { fillStyle: '#060a19' } }),
-    partB = Bodies.rectangle(660, 200, 50 * 0.8, 190 * 0.8, { render: { fillStyle: '#060a19' } }),
-    compound = Body.create({
-        parts: [partA, partB],
-        isStatic: true
-    });
-
-Body.setPosition(compound, { x: 600, y: 300 });
-
-Composite.add(world, [bodyA, bodyB, bodyC, bodyD, bodyE, bodyF, bodyG, compound]);
-
-Composite.add(world, [
-    // walls
-    Bodies.rectangle(400, 0, 800, 50, { isStatic: true }),
-    Bodies.rectangle(400, 600, 800, 50, { isStatic: true }),
-    Bodies.rectangle(800, 300, 50, 600, { isStatic: true }),
-    Bodies.rectangle(0, 300, 50, 600, { isStatic: true })
-]);
 
 Events.on(engine, 'beforeUpdate', function (event) {
     var forceVector = Vector.create(0, -0.008);
@@ -138,22 +133,22 @@ Events.on(engine, 'beforeUpdate', function (event) {
     );
 });
 
-// add mouse control
-var mouse = Mouse.create(render.canvas),
-    mouseConstraint = MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: {
-            stiffness: 0.2,
-            render: {
-                visible: true
-            }
-        }
-    });
+// // add mouse control
+// var mouse = Mouse.create(render.canvas),
+//     mouseConstraint = MouseConstraint.create(engine, {
+//         mouse: mouse,
+//         constraint: {
+//             stiffness: 0.2,
+//             render: {
+//                 visible: true
+//             }
+//         }
+//     });
 
-Composite.add(world, mouseConstraint);
+// Composite.add(world, mouseConstraint);
 
-// keep the mouse in sync with rendering
-render.mouse = mouse;
+// // keep the mouse in sync with rendering
+// render.mouse = mouse;
 
 // fit the render viewport to the scene
 Render.lookAt(render, {
